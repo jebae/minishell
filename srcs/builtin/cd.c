@@ -1,94 +1,93 @@
 #include "minishell.h"
 
-static void	free_memory(char *backup[2], char *buf)
+static int	get_args_len(char **args)
 {
-	ft_memdel((void **)&backup[0]);
-	ft_memdel((void **)&backup[1]);
-	ft_memdel((void **)&buf);
-}
-
-static int	rollback(char *backup[2], char *oldpwd, char ***envs_ptr)
-{
-	static const char	*keys[2] = {"OLDPWD", "PWD"};
-	int					i;
+	int		i;
 
 	i = 0;
-	while (i < 2)
+	while (args[i])
+		i++;
+	return i;
+}
+
+static char	*get_path(char *arg, char **envs, t_context *ctx)
+{
+	char	*path;
+	char	*temp;
+
+	if (arg == NULL)
 	{
-		if (backup[i])
-		{
-			if (set_env((char *)keys[i], backup[i], envs_ptr) == -1)
-				break ;
-		}
+		if ((temp = get_env((char *)"HOME", envs)) == NULL)
+			path = ft_strdup(ctx->pwd);
 		else
-		{
-			if (unset_env((char *)keys[i], envs_ptr) == -1)
-				break ;
-		}
-		i++;
+			path = ft_strdup(temp);
 	}
-	chdir(oldpwd);
-	free_memory(backup, oldpwd);
-	return (-1);
+	else if (ft_strcmp(arg, "-") == 0)
+	{
+		if ((temp = get_env((char *)"OLDPWD", envs)) == NULL)
+			path = NULL;
+		else
+			path = ft_strdup(temp);
+	}
+	else
+		path = resolve_path(ctx->pwd, arg);
+	return (path);
 }
 
-static int	prepare_backup(char *backup[2], char **envs)
+static int	file_err(const char *msg, char *arg)
 {
-	static const char	*keys[2] = {"OLDPWD", "PWD"};
-	char				*env;
-	int					i;
-
-	backup[0] = NULL;
-	backup[1] = NULL;
-	i = 0;
-	while (i < 2)
-	{
-		env = get_env((char *)keys[i], envs);
-		if (env)
-		{
-			backup[i] = ft_strdup(env);
-			if (backup[i] == NULL)
-				return (-1);
-		}
-		i++;
-	}
+	ft_fprintf(2, "cd: %s: %s\n", msg, arg);
 	return (0);
 }
 
-static char	*get_path(char *arg, char **envs)
+static int	is_valid(char *path, char *arg)
 {
-	if (ft_strcmp(arg, "~") == 0)
-		return (get_env((char *)"HOME", envs));
-	else if (ft_strcmp(arg, "-") == 0)
-		return (get_env((char *)"OLDPWD", envs));
-	return (arg);
+	struct stat	st;
+
+	if (path == NULL)
+	{
+		if (ft_strcmp(arg, "-") == 0)
+			ft_fprintf(2, "cd: OLDPWD not set\n");
+		else
+			ft_fprintf(2, "cd: unexpected error\n");
+		return (0);
+	}
+	if (access(path, F_OK) == -1)
+		return (file_err("no such file or directory", arg));
+	if (lstat(path, &st) == -1)
+		return (file_err("no such file or directory", arg));
+	if ((st.st_mode & S_IFMT) == S_IFLNK)
+		stat(path, &st);
+	if ((st.st_mode & S_IFMT) != S_IFDIR)
+		return (file_err("not a directory", arg));
+	if (access(path, X_OK) == -1)
+		return (file_err("permission denied", arg));
+	return (1);
 }
 
-int			cmd_cd(char **args, char ***envs_ptr)
+int			cmd_cd(char **args, char ***envs_ptr, t_context *ctx)
 {
-	char	*backup[2];
-	char	*buf;
-	int		res;
+	char	*path;
 
-	if (!is_valid_cd_arg(args))
-		return (-1);
-	buf = NULL;
-	if (prepare_backup(backup, *envs_ptr) == -1 ||
-		(buf = getcwd(NULL, 0)) == NULL)
+	if (get_args_len(args) > 1)
 	{
-		free_memory(backup, buf);
+		ft_fprintf(2, "cd: too many arguments\n");
 		return (-1);
 	}
-	if ((res = chdir(get_path(args[0], *envs_ptr))) != -1)
+	path = get_path(args[0], *envs_ptr, ctx);
+	if (!is_valid(path, args[0]))
 	{
-		if (set_env((char *)"OLDPWD", buf, envs_ptr) == -1)
-			return (rollback(backup, buf, envs_ptr));
-		ft_memdel((void **)&buf);
-		if ((buf = getcwd(NULL, 0)) == NULL)
-			return (rollback(backup, buf, envs_ptr));
-		if (set_env((char *)"PWD", buf, envs_ptr) == -1)
-			return (rollback(backup, buf, envs_ptr));
+		ft_memdel((void **)&path);
+		return (-1);
 	}
-	free_memory(backup, buf);
-	return (res);
+	if (set_env((char *)"OLDPWD", ctx->pwd, envs_ptr) == -1
+		|| set_env((char *)"PWD", path, envs_ptr) == -1)
+	{
+		ft_memdel((void **)&path);
+		return (-1);
+	}
+	ft_memdel((void **)&ctx->pwd);
+	ctx->pwd = path;
+	chdir(path);
+	return (0);
 }

@@ -13,21 +13,26 @@ extern "C"
 #endif
 # include <stdio.h>
 
-int			cmd_echo(char **args);
+typedef struct	s_context
+{
+	char	*pwd;
+}				t_context;
 
-int			env(char **envs);
-int			get_env_idx(char *key, char **envs);
-char		*get_env(char *key, char **envs);
-int			get_envs_len(char **envs);
-int			is_valid_env_key(char *key);
+int				cmd_echo(char **args);
 
-int			set_env(char *key, char *value, char ***envs_ptr);
-int			cmd_setenv(char **args, char ***envs_ptr);
+int				env(char **envs);
+int				get_env_idx(char *key, char **envs);
+char			*get_env(char *key, char **envs);
+int				get_envs_len(char **envs);
+int				is_valid_env_key(char *key);
 
-int			unset_env(char *key, char ***envs_ptr);
-int			cmd_unsetenv(char **args, char ***envs_ptr);
+int				set_env(char *key, char *value, char ***envs_ptr);
+int				cmd_setenv(char **args, char ***envs_ptr);
 
-int			cmd_cd(char **args, char ***envs_ptr);
-int			is_valid_cd_arg(char **args);
+int				unset_env(char *key, char ***envs_ptr);
+int				cmd_unsetenv(char **args, char ***envs_ptr);
+
+int				cmd_cd(char **args, char ***envs_ptr, t_context *ctx);
+int				is_valid_cd_arg(char **args);
 
 #endif

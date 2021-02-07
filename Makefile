@@ -25,7 +25,6 @@ SRC_BUILTIN = echo.c\
 	setenv.c\
 	unsetenv.c\
 	cd.c\
-	cd_validate.c\
 
 # objs
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRC_MAIN:.c=.o))
