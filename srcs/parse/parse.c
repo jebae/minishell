@@ -6,18 +6,6 @@ static int	err_with_free(char *buf)
 	return (-1);
 }
 
-int			concat(char **token, char *input, size_t len)
-{
-	char	*s;
-
-	s = strnewncat(*token, input, len);
-	if (s == NULL)
-		return (-1);
-	ft_memdel((void **)token);
-	*token = s;
-	return (0);
-}
-
 static int	add_rest_token(char **token, char *input, t_list *tokens)
 {
 	size_t	len;
@@ -35,8 +23,16 @@ static int	add_rest_token(char **token, char *input, t_list *tokens)
 	return (0);
 }
 
-static int	get_tokens(
-	char *input, char **envs, t_context *ctx, t_list *tokens)
+static int	parse_special(
+	char **token, char *input, t_context *ctx, t_list *tokens)
+{
+	if (ft_iswhitespace(*input))
+		return (parse_space(token, input, tokens));
+	else
+		return (parse_expr(token, input, ctx));
+}
+
+static int	get_tokens(char *input, t_context *ctx, t_list *tokens)
 {
 	char	*token;
 	int		i;
@@ -52,10 +48,7 @@ static int	get_tokens(
 		{
 			if (input[j] != '~' && concat(&token, input + i, j - i) == -1)
 				return (err_with_free(token));
-			i = (ft_iswhitespace(input[j]))
-				? parse_space(&token, input + j, tokens)
-				: parse_expr(&token, input + j, envs, ctx);
-			if (i == -1)
+			if ((i = parse_special(&token, input + j, ctx, tokens)) == -1)
 				return (err_with_free(token));
 			j += i;
 			i = j;
@@ -68,13 +61,13 @@ static int	get_tokens(
 	return (0);
 }
 
-char		**parse(char *input, char **envs, t_context *ctx)
+char		**parse(char *input, t_context *ctx)
 {
 	t_list		tokens;
 	char		**res;
 
 	init_list(&tokens);
-	if (get_tokens(input, envs, ctx, &tokens) == -1)
+	if (get_tokens(input, ctx, &tokens) == -1)
 	{
 		clear_list(&tokens);
 		return (NULL);

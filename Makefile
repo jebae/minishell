@@ -26,7 +26,7 @@ SRC_BUILTIN = echo.c\
 	unsetenv.c\
 	cd.c\
 
-SRC_PARSE = list2array.c\
+SRC_PARSE = token.c\
 	parse.c\
 	parse_backslash.c\
 	parse_dollar.c\

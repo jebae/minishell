@@ -8,15 +8,14 @@ extern char **environ;
 
 class CDTest: public ::testing::Test {
 protected:
-	char		**envs;
 	t_context	ctx;
 	char		pwd[1024];
 	char		oldpwd[1024];
 	char		buf[1024];
 
 	virtual void	SetUp() {
-		envs = (char **)malloc(sizeof(char *));
-		envs[0] = NULL;
+		ctx.envs = (char **)malloc(sizeof(char *));
+		ctx.envs[0] = NULL;
 
 		ctx.pwd = getcwd(NULL, 0);
 		strcpy(oldpwd, ctx.pwd);
@@ -24,38 +23,38 @@ protected:
 
 	virtual void	TearDown() {
 		chdir(oldpwd);
-		for (int i=0; envs[i]; i++) {
-			free(envs[i]);
+		for (int i=0; ctx.envs[i]; i++) {
+			free(ctx.envs[i]);
 		}
-		free(envs);
+		free(ctx.envs);
 		free(ctx.pwd);
 	}
 
 	void			test_with_realpath(char *args[]) {
 		realpath(args[0], pwd);
 
-		ASSERT_EQ(cmd_cd((char **)args, &envs, &ctx), 0);
+		ASSERT_EQ(cmd_cd((char **)args, &ctx), 0);
 		getcwd(buf, 1024);
 		ASSERT_STREQ(buf, pwd);
 		ASSERT_STREQ(ctx.pwd, pwd);
-		ASSERT_STREQ(get_env((char *)"PWD", envs), pwd);
-		ASSERT_STREQ(get_env((char *)"OLDPWD", envs), oldpwd);
+		ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), pwd);
+		ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), oldpwd);
 	}
 
 	void			test_error(char *args[], char *msg)
 	{
-		char	*temp_oldpwd = get_env((char *)"OLDPWD", envs);
-		char	*temp_pwd = get_env((char *)"PWD", envs);
+		char	*temp_oldpwd = get_env((char *)"OLDPWD", ctx.envs);
+		char	*temp_pwd = get_env((char *)"PWD", ctx.envs);
 		char	*temp_ctxpwd = strdup(ctx.pwd);
 
 		::testing::internal::CaptureStderr();
-		ASSERT_EQ(cmd_cd((char **)args, &envs, &ctx), -1);
+		ASSERT_EQ(cmd_cd((char **)args, &ctx), -1);
 		string output = ::testing::internal::GetCapturedStderr();
 
 		ASSERT_NE((long)strstr(output.c_str(), msg), NULL);
-		ASSERT_STREQ(get_env((char *)"PWD", envs), temp_pwd);
+		ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), temp_pwd);
 		ASSERT_STREQ(ctx.pwd, temp_ctxpwd);
-		ASSERT_STREQ(get_env((char *)"OLDPWD", envs), temp_oldpwd);
+		ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), temp_oldpwd);
 		free(temp_ctxpwd);
 	}
 };
@@ -86,18 +85,18 @@ TEST_F(CDTest, no_argument_with_HOME)
 	const char	*args[] = {NULL};
 	char		*home;
 
-	free(envs);
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = ft_strjoin("HOME=", get_env((char *)"HOME", environ));
-	envs[1] = NULL;
-	home = get_env((char *)"HOME", envs);
+	free(ctx.envs);
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = ft_strjoin("HOME=", get_env((char *)"HOME", environ));
+	ctx.envs[1] = NULL;
+	home = get_env((char *)"HOME", ctx.envs);
 
-	ASSERT_EQ(cmd_cd((char **)args, &envs, &ctx), 0);
+	ASSERT_EQ(cmd_cd((char **)args, &ctx), 0);
 	getcwd(buf, 1024);
 	ASSERT_STREQ(buf, home);
 	ASSERT_STREQ(ctx.pwd, home);
-	ASSERT_STREQ(get_env((char *)"PWD", envs), home);
-	ASSERT_STREQ(get_env((char *)"OLDPWD", envs), oldpwd);
+	ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), home);
+	ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), oldpwd);
 }
 
 TEST_F(CDTest, no_argument_without_HOME)
@@ -106,30 +105,30 @@ TEST_F(CDTest, no_argument_without_HOME)
 
 	strcpy(pwd, ctx.pwd);
 
-	ASSERT_EQ(cmd_cd((char **)args, &envs, &ctx), 0);
+	ASSERT_EQ(cmd_cd((char **)args, &ctx), 0);
 	getcwd(buf, 1024);
 	ASSERT_STREQ(buf, pwd);
 	ASSERT_STREQ(ctx.pwd, pwd);
-	ASSERT_STREQ(get_env((char *)"PWD", envs), pwd);
-	ASSERT_STREQ(get_env((char *)"OLDPWD", envs), pwd);
+	ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), pwd);
+	ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), pwd);
 }
 
 TEST_F(CDTest, dash_with_OLDPWD)
 {
 	const char	*args[] = {"-", NULL};
 
-	free(envs);
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("OLDPWD=/usr/bin");
-	envs[1] = NULL;
-	strcpy(pwd, get_env((char *)"OLDPWD", envs));
+	free(ctx.envs);
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("OLDPWD=/usr/bin");
+	ctx.envs[1] = NULL;
+	strcpy(pwd, get_env((char *)"OLDPWD", ctx.envs));
 
-	ASSERT_EQ(cmd_cd((char **)args, &envs, &ctx), 0);
+	ASSERT_EQ(cmd_cd((char **)args, &ctx), 0);
 	getcwd(buf, 1024);
 	ASSERT_STREQ(buf, pwd);
 	ASSERT_STREQ(ctx.pwd, pwd);
-	ASSERT_STREQ(get_env((char *)"PWD", envs), pwd);
-	ASSERT_STREQ(get_env((char *)"OLDPWD", envs), oldpwd);
+	ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), pwd);
+	ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), oldpwd);
 }
 
 TEST_F(CDTest, dash_without_OLDPWD)
@@ -190,12 +189,12 @@ TEST_F(CDTest, symlink_dir)
 	strcpy(pwd, oldpwd);
 	strcat(pwd, "/b/c");
 
-	ASSERT_EQ(cmd_cd((char **)args, &envs, &ctx), 0);
+	ASSERT_EQ(cmd_cd((char **)args, &ctx), 0);
 	chdir(oldpwd);
 
 	ASSERT_STREQ(ctx.pwd, pwd);
-	ASSERT_STREQ(get_env((char *)"PWD", envs), pwd);
-	ASSERT_STREQ(get_env((char *)"OLDPWD", envs), oldpwd);
+	ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), pwd);
+	ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), oldpwd);
 	ASSERT_NE(rmdir("./a"), -1);
 	ASSERT_NE(unlink("./b/c"), -1);
 	ASSERT_NE(rmdir("./b"), -1);

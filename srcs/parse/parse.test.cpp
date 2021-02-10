@@ -3,20 +3,18 @@
 
 class ParseTest: public ::testing::Test {
 protected:
-	char		**envs;
 	t_context	ctx;
 
 	virtual void	SetUp() {
-		envs = NULL;
 		memset(&ctx, 0, sizeof(t_context));
 	}
 
 	virtual void	TearDown() {
-		if (envs) {
-			for (int i=0; envs[i]; i++) {
-				free(envs[i]);
+		if (ctx.envs) {
+			for (int i=0; ctx.envs[i]; i++) {
+				free(ctx.envs[i]);
 			}
-			free(envs);
+			free(ctx.envs);
 		}
 		if (ctx.pwd)
 			free(ctx.pwd);
@@ -25,7 +23,7 @@ protected:
 	}
 
 	void			test(const char *input, char **expected) {
-		char	**args = parse((char *)input, envs, &ctx);
+		char	**args = parse((char *)input, &ctx);
 		int		i, len;
 
 		len = 0;
@@ -157,9 +155,9 @@ TEST_F(ParseTest, env_exist)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -173,10 +171,10 @@ TEST_F(ParseTest, multi_env_exist)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 3);
-	envs[0] = strdup("HOME=/Users/buzz");
-	envs[1] = strdup("FOO=bar");
-	envs[2] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 3);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = strdup("FOO=bar");
+	ctx.envs[2] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -191,9 +189,9 @@ TEST_F(ParseTest, env_exist_not_only_env)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -208,9 +206,9 @@ TEST_F(ParseTest, env_exist_surrounded)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -222,9 +220,9 @@ TEST_F(ParseTest, env_not_exist)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME_=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME_=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -236,9 +234,9 @@ TEST_F(ParseTest, multi_env_not_exist)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME_=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME_=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -250,9 +248,9 @@ TEST_F(ParseTest, env_not_exist_whitespace_surrounded)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME_=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME_=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -266,9 +264,9 @@ TEST_F(ParseTest, env_not_exist_not_only_env)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME_=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME_=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -283,9 +281,9 @@ TEST_F(ParseTest, env_not_exist_surrounded)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME_=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME_=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -298,9 +296,9 @@ TEST_F(ParseTest, env_exist_and_not_exist)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -313,9 +311,9 @@ TEST_F(ParseTest, env_in_quote)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -328,9 +326,9 @@ TEST_F(ParseTest, env_in_double_quote)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -344,9 +342,9 @@ TEST_F(ParseTest, only_$)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -360,9 +358,9 @@ TEST_F(ParseTest, wrong_env_key_format_after_$)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -376,9 +374,9 @@ TEST_F(ParseTest, wrong_env_key_format_after_$_following_str)
 		NULL
 	};
 
-	envs = (char **)malloc(sizeof(char *) * 2);
-	envs[0] = strdup("HOME=/Users/buzz");
-	envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = NULL;
 
 	test(input, (char **)expected);
 }
@@ -392,9 +390,9 @@ TEST_F(ParseTest, wrong_env_key_format_after_$_following_str)
 // 		NULL
 // 	};
 
-// 	envs = (char **)malloc(sizeof(char *) * 2);
-// 	envs[0] = strdup("HOME=/Users/buzz");
-// 	envs[1] = NULL;
+// 	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+// 	ctx.envs[0] = strdup("HOME=/Users/buzz");
+// 	ctx.envs[1] = NULL;
 
 // 	test(input, (char **)expected);
 // }

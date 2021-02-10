@@ -9,17 +9,16 @@ int			is_expr_char(char ch, char *token)
 	return (0);
 }
 
-int			parse_expr(
-	char **token, char *input, char **envs, t_context *ctx)
+int			parse_expr(char **token, char *input, t_context *ctx)
 {
 	int		r;
 
 	(void)ctx;
 	r = 1;
 	if (*input == '$')
-		r = parse_dollar(input, envs, token);
+		r = parse_dollar(input, ctx->envs, token);
 	else if (*input == '"')
-		r = parse_dblquote(input, envs, token);
+		r = parse_dblquote(input, ctx->envs, token);
 	else if (*input == '\'')
 		r = parse_quote(input, token);
 	else if (*input == '\\')

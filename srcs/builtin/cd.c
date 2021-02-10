@@ -10,21 +10,21 @@ static int	get_args_len(char **args)
 	return (i);
 }
 
-static char	*get_path(char *arg, char **envs, t_context *ctx)
+static char	*get_path(char *arg, t_context *ctx)
 {
 	char	*path;
 	char	*temp;
 
 	if (arg == NULL)
 	{
-		if ((temp = get_env((char *)"HOME", envs)) == NULL)
+		if ((temp = get_env((char *)"HOME", ctx->envs)) == NULL)
 			path = ft_strdup(ctx->pwd);
 		else
 			path = ft_strdup(temp);
 	}
 	else if (ft_strcmp(arg, "-") == 0)
 	{
-		if ((temp = get_env((char *)"OLDPWD", envs)) == NULL)
+		if ((temp = get_env((char *)"OLDPWD", ctx->envs)) == NULL)
 			path = NULL;
 		else
 			path = ft_strdup(temp);
@@ -65,7 +65,7 @@ static int	is_valid(char *path, char *arg)
 	return (1);
 }
 
-int			cmd_cd(char **args, char ***envs_ptr, t_context *ctx)
+int			cmd_cd(char **args, t_context *ctx)
 {
 	char	*path;
 
@@ -74,14 +74,14 @@ int			cmd_cd(char **args, char ***envs_ptr, t_context *ctx)
 		ft_fprintf(2, "cd: too many arguments\n");
 		return (-1);
 	}
-	path = get_path(args[0], *envs_ptr, ctx);
+	path = get_path(args[0], ctx);
 	if (!is_valid(path, args[0]))
 	{
 		ft_memdel((void **)&path);
 		return (-1);
 	}
-	if (set_env((char *)"OLDPWD", ctx->pwd, envs_ptr) == -1
-		|| set_env((char *)"PWD", path, envs_ptr) == -1)
+	if (set_env((char *)"OLDPWD", ctx->pwd, &ctx->envs) == -1
+		|| set_env((char *)"PWD", path, &ctx->envs) == -1)
 	{
 		ft_memdel((void **)&path);
 		return (-1);

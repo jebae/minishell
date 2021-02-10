@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void	clear_arr(char **arr)
+static void	clear_arr(char **arr)
 {
 	int		i;
 
@@ -13,7 +13,7 @@ void	clear_arr(char **arr)
 	ft_memdel((void **)&arr);
 }
 
-char	**list2array(t_list *list)
+char		**list2array(t_list *list)
 {
 	char		**arr;
 	t_list_node	*token;
@@ -38,4 +38,17 @@ char	**list2array(t_list *list)
 		return (NULL);
 	}
 	return (arr);
+}
+
+// need unit test
+int			concat(char **token, char *input, size_t len)
+{
+	char	*s;
+
+	s = strnewncat(*token, input, len);
+	if (s == NULL)
+		return (-1);
+	ft_memdel((void **)token);
+	*token = s;
+	return (0);
 }
