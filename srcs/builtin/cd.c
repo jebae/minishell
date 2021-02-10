@@ -7,7 +7,7 @@ static int	get_args_len(char **args)
 	i = 0;
 	while (args[i])
 		i++;
-	return i;
+	return (i);
 }
 
 static char	*get_path(char *arg, char **envs, t_context *ctx)

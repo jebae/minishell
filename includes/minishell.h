@@ -13,9 +13,15 @@ extern "C"
 #endif
 # include <stdio.h>
 
+typedef struct	s_dir_stack
+{
+	/* data */
+}				t_dir_stack;
+
 typedef struct	s_context
 {
-	char	*pwd;
+	char		*pwd;
+	t_dir_stack	*dir_stack;
 }				t_context;
 
 int				cmd_echo(char **args);
@@ -34,5 +40,17 @@ int				cmd_unsetenv(char **args, char ***envs_ptr);
 
 int				cmd_cd(char **args, char ***envs_ptr, t_context *ctx);
 int				is_valid_cd_arg(char **args);
+
+char			**parse(char *input, char **envs, t_context *ctx);
+int				concat(char **token, char *input, size_t len);
+int				is_expr_char(char ch, char *token);
+int				parse_expr(
+	char **token, char *input, char **envs, t_context *ctx);
+int				parse_backslash(char *input, char **token);
+int				parse_dollar(char *input, char **envs, char **token);
+int				parse_quote(char *input, char **token);
+int				parse_dblquote(char *input, char **envs, char **token);
+int				parse_space(char **token, char *input, t_list *tokens);
+char			**list2array(t_list *list);
 
 #endif

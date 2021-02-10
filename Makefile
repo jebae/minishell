@@ -26,17 +26,27 @@ SRC_BUILTIN = echo.c\
 	unsetenv.c\
 	cd.c\
 
+SRC_PARSE = list2array.c\
+	parse.c\
+	parse_backslash.c\
+	parse_dollar.c\
+	parse_expr.c\
+	parse_quote.c\
+	parse_space.c\
+
 # objs
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRC_MAIN:.c=.o))
 OBJS += $(addprefix $(OBJ_DIR)/, $(SRC_BUILTIN:.c=.o))
+OBJS += $(addprefix $(OBJ_DIR)/, $(SRC_PARSE:.c=.o))
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/builtin/%.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/parse/%.c
 
 TESTS = $(SRC_DIR)/**/*.test.cpp $(SRC_DIR)/*.test.cpp
 
 def = ''
 
-test: $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(TESTS)
+test: $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(addprefix $(SRC_DIR)/parse/, $(SRC_PARSE)) $(TESTS)
 	$(MAKE) -C $(LIBFT)
 	$(MAKE) -C $(FT_PRINTF)
 	g++\
@@ -45,7 +55,7 @@ test: $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(TESTS)
 		-lgtest\
 		$(LIBS)\
 		$(INCLUDES)\
-		$(TESTS) $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN))\
+		$(TESTS) $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(addprefix $(SRC_DIR)/parse/, $(SRC_PARSE))\
 		-o $@
 
 .PHONY: test

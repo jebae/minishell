@@ -22,6 +22,15 @@ protected:
 		strcpy(oldpwd, ctx.pwd);
 	}
 
+	virtual void	TearDown() {
+		chdir(oldpwd);
+		for (int i=0; envs[i]; i++) {
+			free(envs[i]);
+		}
+		free(envs);
+		free(ctx.pwd);
+	}
+
 	void			test_with_realpath(char *args[]) {
 		realpath(args[0], pwd);
 
@@ -48,15 +57,6 @@ protected:
 		ASSERT_STREQ(ctx.pwd, temp_ctxpwd);
 		ASSERT_STREQ(get_env((char *)"OLDPWD", envs), temp_oldpwd);
 		free(temp_ctxpwd);
-	}
-
-	virtual void	TearDown() {
-		chdir(oldpwd);
-		for (int i=0; envs[i]; i++) {
-			free(envs[i]);
-		}
-		free(envs);
-		free(ctx.pwd);
 	}
 };
 
