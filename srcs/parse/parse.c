@@ -28,8 +28,8 @@ static int	parse_special(
 {
 	int		i;
 
-	if (is_expr_char(*input, *token))
-		return (parse_expr(token, input, ctx));
+	if (is_expr(*input, *token, 1))
+		return (parse_expr(input, ctx, token));
 	if (ft_strlen(*token) > 0)
 	{
 		if (push_list_node(*token, tokens) == -1)
@@ -56,7 +56,7 @@ static int	get_tokens(char *input, t_context *ctx, t_list *tokens)
 	j = 0;
 	while (input[j] != '\0')
 	{
-		if (is_expr_char(input[j], token) || ft_iswhitespace(input[j]))
+		if (is_expr(input[j], token, i == j) || ft_iswhitespace(input[j]))
 		{
 			if (input[j] != '~' && concat(&token, input + i, j - i) == -1)
 				return (err_with_free(token));

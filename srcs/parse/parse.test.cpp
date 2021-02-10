@@ -7,6 +7,13 @@ protected:
 
 	virtual void	SetUp() {
 		memset(&ctx, 0, sizeof(t_context));
+
+		char	path[2] = {0,};
+
+		for (int i=0; i < 26; i++) {
+			path[0] = 'a' + i;
+			push_list_node(strdup(path), &ctx.dir_stack);
+		}
 	}
 
 	virtual void	TearDown() {
@@ -16,10 +23,11 @@ protected:
 			}
 			free(ctx.envs);
 		}
+
 		if (ctx.pwd)
 			free(ctx.pwd);
-		if (ctx.dir_stack)
-			free(ctx.dir_stack);
+
+		clear_list(&ctx.dir_stack);
 	}
 
 	void			test(const char *input, char **expected) {
@@ -381,39 +389,138 @@ TEST_F(ParseTest, wrong_env_key_format_after_$_following_str)
 	test(input, (char **)expected);
 }
 
-// TEST_F(ParseTest, tilde_only)
-// {
-// 	const char	*input = "cd ~";
-// 	const char	*expected[] = {
-// 		"cd",
-// 		"/Users/buzz",
-// 		NULL
-// 	};
+TEST_F(ParseTest, tilde_only)
+{
+	const char	*input = "cd ~";
+	const char	*expected[] = {
+		"cd",
+		"/Users/buzz",
+		NULL
+	};
 
-// 	ctx.envs = (char **)malloc(sizeof(char *) * 2);
-// 	ctx.envs[0] = strdup("HOME=/Users/buzz");
-// 	ctx.envs[1] = NULL;
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = NULL;
 
-// 	test(input, (char **)expected);
-// }
+	test(input, (char **)expected);
+}
 
-// TEST_F(ParseTest, tilde_follwed_by_plus)
-// {
-// 	const char	*input = "cd ~+";
-// 	const char	*expected[] = {
-// 		"cd",
-// 		"/some/where",
-// 		NULL
-// 	};
+TEST_F(ParseTest, tilde_follwed_by_plus)
+{
+	const char	*input = "cd ~+";
+	const char	*expected[] = {
+		"cd",
+		"/some/where",
+		NULL
+	};
 
-// 	ctx.pwd = strdup("/some/where");
+	ctx.pwd = strdup("/some/where");
 
-// 	test(input, (char **)expected);
-// }
+	test(input, (char **)expected);
+}
 
-// TEST_F(ParseTest, tilde_follwed_by_plus_number)
-// TEST_F(ParseTest, tilde_follwed_by_minus)
-// TEST_F(ParseTest, tilde_follwed_by_minus_number)
-// TEST_F(ParseTest, tilde_followed_by_char)
-// TEST_F(ParseTest, tilde_following_char)
-// TEST_F(ParseTest, whitespace_around)
+TEST_F(ParseTest, tilde_follwed_by_plus_number)
+{
+	const char	*input = "cd ~+17/go";
+	const char	*expected[] = {
+		"cd",
+		"r/go",
+		NULL
+	};
+
+	test(input, (char **)expected);
+}
+
+TEST_F(ParseTest, tilde_follwed_by_minus)
+{
+	const char	*input = "cd ~-";
+	const char	*expected[] = {
+		"cd",
+		"/some/where",
+		NULL
+	};
+
+	ctx.envs = (char **)malloc(sizeof(char *) * 2);
+	ctx.envs[0] = strdup("OLDPWD=/some/where");
+	ctx.envs[1] = NULL;
+
+	test(input, (char **)expected);
+}
+
+TEST_F(ParseTest, tilde_follwed_by_minus_number)
+{
+	const char	*input = "cd ~-17/go";
+	const char	*expected[] = {
+		"cd",
+		"j/go",
+		NULL
+	};
+
+	test(input, (char **)expected);
+}
+
+TEST_F(ParseTest, tilde_followed_by_char)
+{
+	const char	*input = "cd ~a";
+	const char	*expected[] = {
+		"cd",
+		"~a",
+		NULL
+	};
+
+	test(input, (char **)expected);
+}
+
+TEST_F(ParseTest, tilde_following_char)
+{
+	const char	*input = "cd a~";
+	const char	*expected[] = {
+		"cd",
+		"a~",
+		NULL
+	};
+
+	test(input, (char **)expected);
+}
+
+TEST_F(ParseTest, tilde_following_char_at_first)
+{
+	const char	*input = "echo~";
+	const char	*expected[] = {
+		"echo~",
+		NULL
+	};
+
+	test(input, (char **)expected);
+}
+
+TEST_F(ParseTest, whitespace_around)
+{
+	const char	*input = "\t    \n  \t  ";
+	const char	*expected[] = {
+		NULL
+	};
+
+	test(input, (char **)expected);
+}
+
+TEST_F(ParseTest, mixed_case1)
+{
+	const char	*input = "\t    \n  $\"HOME\"ez  \t  ~\"/  $..b/ \" abcde\\fg  foo$FOO:ez  ~-5  \n ";
+	const char	*expected[] = {
+		"$HOMEez",
+		"/Users/buzz/  $..b/ ",
+		"abcdefg",
+		"foobar:ez",
+		"v",
+		NULL
+	};
+
+	ctx.envs = (char **)malloc(sizeof(char *) * 4);
+	ctx.envs[0] = strdup("HOME=/Users/buzz");
+	ctx.envs[1] = strdup("FOO=bar");
+	ctx.envs[2] = strdup("OLDPWD=/tmp");
+	ctx.envs[3] = NULL;
+
+	test(input, (char **)expected);
+}

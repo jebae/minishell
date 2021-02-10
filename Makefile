@@ -32,20 +32,25 @@ SRC_PARSE = token.c\
 	parse_dollar.c\
 	parse_expr.c\
 	parse_quote.c\
+	parse_tilde.c\
+
+SRC_DIRSTACK = directory_stack.c\
 
 # objs
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRC_MAIN:.c=.o))
 OBJS += $(addprefix $(OBJ_DIR)/, $(SRC_BUILTIN:.c=.o))
 OBJS += $(addprefix $(OBJ_DIR)/, $(SRC_PARSE:.c=.o))
+OBJS += $(addprefix $(OBJ_DIR)/, $(SRC_DIRSTACK:.c=.o))
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/builtin/%.c
 $(OBJ_DIR)/%.o: $(SRC_DIR)/parse/%.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 
 TESTS = $(SRC_DIR)/**/*.test.cpp $(SRC_DIR)/*.test.cpp
 
 def = ''
 
-test: $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(addprefix $(SRC_DIR)/parse/, $(SRC_PARSE)) $(TESTS)
+test: $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(addprefix $(SRC_DIR)/parse/, $(SRC_PARSE)) $(addprefix $(SRC_DIR)/, $(SRC_DIRSTACK)) $(TESTS)
 	$(MAKE) -C $(LIBFT)
 	$(MAKE) -C $(FT_PRINTF)
 	g++\
@@ -54,7 +59,7 @@ test: $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(addprefix $(SRC_DIR)/pa
 		-lgtest\
 		$(LIBS)\
 		$(INCLUDES)\
-		$(TESTS) $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(addprefix $(SRC_DIR)/parse/, $(SRC_PARSE))\
+		$(TESTS) $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(addprefix $(SRC_DIR)/parse/, $(SRC_PARSE)) $(addprefix $(SRC_DIR)/, $(SRC_DIRSTACK))\
 		-o $@
 
 .PHONY: test
