@@ -40,7 +40,6 @@ char		**list2array(t_list *list)
 	return (arr);
 }
 
-// need unit test
 int			concat(char **token, char *input, size_t len)
 {
 	char	*s;

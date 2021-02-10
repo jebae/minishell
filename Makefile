@@ -32,7 +32,6 @@ SRC_PARSE = token.c\
 	parse_dollar.c\
 	parse_expr.c\
 	parse_quote.c\
-	parse_space.c\
 
 # objs
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRC_MAIN:.c=.o))

@@ -26,10 +26,22 @@ static int	add_rest_token(char **token, char *input, t_list *tokens)
 static int	parse_special(
 	char **token, char *input, t_context *ctx, t_list *tokens)
 {
-	if (ft_iswhitespace(*input))
-		return (parse_space(token, input, tokens));
-	else
+	int		i;
+
+	if (is_expr_char(*input, *token))
 		return (parse_expr(token, input, ctx));
+	if (ft_strlen(*token) > 0)
+	{
+		if (push_list_node(*token, tokens) == -1)
+			return (-1);
+		*token = ft_strnew(0);
+		if (*token == NULL)
+			return (-1);
+	}
+	i = 1;
+	while (input[i] != '\0' && ft_iswhitespace(input[i]))
+		i++;
+	return (i);
 }
 
 static int	get_tokens(char *input, t_context *ctx, t_list *tokens)
