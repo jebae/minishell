@@ -22,3 +22,43 @@ int		get_dirstack_history(char *query, t_list *stack, char **path)
 	*path = (char *)node->data;
 	return (0);
 }
+
+static void	move_node_to_top(
+	t_list_node *node, t_list_node *prev, t_list *stack)
+{
+	if (node == stack->head)
+		return ;
+	prev->next = node->next;
+	node->next = stack->head;
+	stack->head = node;
+	if (node == stack->tail)
+		stack->tail = prev;
+}
+
+int			update_dirstack_history(char *path, t_list *stack)
+{
+	t_list_node	*node;
+	t_list_node	*prev;
+	char		*data;
+
+	prev = NULL;
+	node = stack->head;
+	while (node && ft_strcmp((char *)node->data, path) != 0)
+	{
+		prev = node;
+		node = node->next;
+	}
+	if (node)
+	{
+		move_node_to_top(node, prev, stack);
+		return (0);
+	}
+	if ((data = ft_strdup(path)) == NULL)
+		return (-1);
+	if (pushleft_list_node(data, stack) == -1)
+	{
+		ft_memdel((void **)&data);
+		return (-1);
+	}
+	return (1);
+}

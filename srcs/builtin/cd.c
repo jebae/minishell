@@ -89,5 +89,7 @@ int			cmd_cd(char **args, t_context *ctx)
 	ft_memdel((void **)&ctx->pwd);
 	ctx->pwd = path;
 	chdir(path);
+	if (update_dirstack_history(path, &ctx->dir_stack) == -1)
+		return (-1);
 	return (0);
 }

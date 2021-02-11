@@ -49,5 +49,6 @@ int				parse_tilde(char *input, t_context *ctx, char **token);
 char			**list2array(t_list *list);
 
 int				get_dirstack_history(char *query, t_list *stack, char **path);
+int				update_dirstack_history(char *path, t_list *stack);
 
 #endif

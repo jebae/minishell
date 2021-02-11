@@ -25,6 +25,7 @@ SRC_BUILTIN = echo.c\
 	setenv.c\
 	unsetenv.c\
 	cd.c\
+	dirs.c\
 
 SRC_PARSE = token.c\
 	parse.c\
