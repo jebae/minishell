@@ -4,7 +4,7 @@ static int	concat_home(char **envs, char **token)
 {
 	char	*home;
 
-	home = get_env((char *)"HOME", envs);
+	home = get_env("HOME", envs);
 	if (home && concat(token, home, ft_strlen(home)) == -1)
 		return (-1);
 	return (1);
@@ -70,9 +70,9 @@ static int	concat_tilde_phrase(char *p, t_context *ctx, char **token)
 	else if (p[0] == '+' && ++i)
 		path = ctx->pwd;
 	else if (p[0] == '-' && ++i)
-		path = get_env((char *)"OLDPWD", ctx->envs);
+		path = get_env("OLDPWD", ctx->envs);
 	else
-		path = get_env((char *)"HOME", ctx->envs);
+		path = get_env("HOME", ctx->envs);
 	if (path && concat(token, path, ft_strlen(path)) == -1)
 		return (-1);
 	if (p[i] == '/')

@@ -8,7 +8,7 @@ TEST(env, one_env)
 	const char	*arge[] = {"FOO=bar", NULL};
 
 	::testing::internal::CaptureStdout();
-	env((char **)arge);
+	cmd_env((char **)arge);
 	std::string output = ::testing::internal::GetCapturedStdout();
 
 	ASSERT_STREQ(output.c_str(), "FOO=bar\n");
@@ -25,7 +25,7 @@ TEST(env, multi_env)
 	}
 
 	::testing::internal::CaptureStdout();
-	env((char **)arge);
+	cmd_env((char **)arge);
 	std::string output = ::testing::internal::GetCapturedStdout();
 
 	ASSERT_STREQ(output.c_str(), expected);
@@ -100,7 +100,7 @@ TEST(get_env, exist)
 		NULL,
 	};
 
-	ASSERT_STREQ(get_env((char *)"TOYSTORY", (char **)arge), "awesome");
+	ASSERT_STREQ(get_env("TOYSTORY", (char **)arge), "awesome");
 }
 
 TEST(get_env, env_without_value)
@@ -112,7 +112,7 @@ TEST(get_env, env_without_value)
 		NULL,
 	};
 
-	ASSERT_STREQ(get_env((char *)"TOYSTORY", (char **)arge), "");
+	ASSERT_STREQ(get_env("TOYSTORY", (char **)arge), "");
 }
 
 TEST(get_env, not_exist_case1)
@@ -124,7 +124,7 @@ TEST(get_env, not_exist_case1)
 		NULL,
 	};
 
-	ASSERT_EQ((long)get_env((char *)"NOT_EXIST", (char **)arge), NULL);
+	ASSERT_EQ((long)get_env("NOT_EXIST", (char **)arge), NULL);
 }
 
 TEST(get_env, not_exist_case2)
@@ -136,7 +136,7 @@ TEST(get_env, not_exist_case2)
 		NULL,
 	};
 
-	ASSERT_EQ((long)get_env((char *)"TOYSTORY2", (char **)arge), NULL);
+	ASSERT_EQ((long)get_env("TOYSTORY2", (char **)arge), NULL);
 }
 
 TEST(get_env, not_exist_case3)
@@ -148,7 +148,7 @@ TEST(get_env, not_exist_case3)
 		NULL,
 	};
 
-	ASSERT_EQ((long)get_env((char *)"TOYSTOR", (char **)arge), NULL);
+	ASSERT_EQ((long)get_env("TOYSTOR", (char **)arge), NULL);
 }
 
 TEST(is_valid_env_key, valid)

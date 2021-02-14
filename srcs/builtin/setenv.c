@@ -62,12 +62,9 @@ int			set_env(char *key, char *value, char ***envs_ptr)
 
 	if (!is_valid_env_key(key) || value == NULL)
 		return (-1);
-	env = (char *)ft_memalloc(ft_strlen(key) + ft_strlen(value) + 2);
+	env = strcat_all(3, key, "=", value);
 	if (env == NULL)
 		return (-1);
-	ft_strcat(env, key);
-	ft_strcat(env, "=");
-	ft_strcat(env, value);
 	idx = get_env_idx(key, *envs_ptr);
 	if (idx == -1)
 	{

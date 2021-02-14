@@ -1,11 +1,11 @@
 #include "minishell.h"
 
-void		cmd_dirs(t_context *ctx)
+int				cmd_dirs(t_list *dir_stack)
 {
 	t_list_node		*dir;
 	int				idx;
 
-	dir = ctx->dir_stack.head;
+	dir = dir_stack->head;
 	idx = 0;
 	while (dir)
 	{
@@ -13,4 +13,5 @@ void		cmd_dirs(t_context *ctx)
 		dir = dir->next;
 		idx++;
 	}
+	return (0);
 }

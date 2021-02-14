@@ -97,6 +97,19 @@ TEST_F(DirectoryStackTest, get_history_out_of_range)
 	output = ::testing::internal::GetCapturedStderr();
 }
 
+TEST_F(DirectoryStackTest, get_history_empty)
+{
+	char	*path;
+
+	::testing::internal::CaptureStderr();
+	ASSERT_EQ(get_dirstack_history((char *)"0", &stack, &path), -1);
+	string output = ::testing::internal::GetCapturedStderr();
+
+	::testing::internal::CaptureStderr();
+	ASSERT_EQ(get_dirstack_history((char *)"-1", &stack, &path), -1);
+	output = ::testing::internal::GetCapturedStderr();
+}
+
 TEST_F(DirectoryStackTest, update_history_already_exist)
 {
 	char		buf[27] = {0,};

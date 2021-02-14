@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-int		env(char **envs)
+int		cmd_env(char **envs)
 {
 	while (*envs)
 	{
@@ -10,7 +10,7 @@ int		env(char **envs)
 	return (0);
 }
 
-int		get_env_idx(char *key, char **envs)
+int		get_env_idx(const char *key, char **envs)
 {
 	size_t	len;
 	size_t	key_len;
@@ -28,7 +28,7 @@ int		get_env_idx(char *key, char **envs)
 	return (-1);
 }
 
-char	*get_env(char *key, char **envs)
+char	*get_env(const char *key, char **envs)
 {
 	int		idx;
 
@@ -48,7 +48,7 @@ int		get_envs_len(char **envs)
 	return (i);
 }
 
-int		is_valid_env_key(char *key)
+int		is_valid_env_key(const char *key)
 {
 	int		i;
 

@@ -10,6 +10,7 @@ FT_PRINTF = $(LIB_DIR)/ft_printf
 
 # compiler option
 CC = gcc
+CFLAGS = -Wextra -Wall -Werror
 INCLUDES = -I $(INC_DIR)\
 	-I $(LIBFT)/includes\
 	-I $(FT_PRINTF)/includes\
@@ -26,6 +27,7 @@ SRC_BUILTIN = echo.c\
 	unsetenv.c\
 	cd.c\
 	dirs.c\
+	exit.c\
 
 SRC_PARSE = token.c\
 	parse.c\
@@ -35,23 +37,54 @@ SRC_PARSE = token.c\
 	parse_quote.c\
 	parse_tilde.c\
 
-SRC_DIRSTACK = directory_stack.c\
+SRC_SHELL = directory_stack.c\
+	exec.c\
+	get_executable.c\
+	prompt.c\
+	error.c\
+
+SRC_UTILS = utils.c\
 
 # objs
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRC_MAIN:.c=.o))
 OBJS += $(addprefix $(OBJ_DIR)/, $(SRC_BUILTIN:.c=.o))
 OBJS += $(addprefix $(OBJ_DIR)/, $(SRC_PARSE:.c=.o))
-OBJS += $(addprefix $(OBJ_DIR)/, $(SRC_DIRSTACK:.c=.o))
+OBJS += $(addprefix $(OBJ_DIR)/, $(SRC_SHELL:.c=.o))
+OBJS += $(addprefix $(OBJ_DIR)/, $(SRC_UTILS:.c=.o))
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/builtin/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 $(OBJ_DIR)/%.o: $(SRC_DIR)/parse/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/shell/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 TESTS = $(SRC_DIR)/**/*.test.cpp $(SRC_DIR)/*.test.cpp
 
+# command
+all : $(NAME)
+
+$(NAME): $(OBJ_DIR) $(OBJS)
+	$(MAKE) -C $(LIBFT)
+	$(MAKE) -C $(FT_PRINTF)
+	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) $(OBJS) -o $@
+
+$(OBJ_DIR):
+	mkdir -p $@
+
+clean:
+	rm -rf $(OBJ_DIR)
+
+fclean: clean
+	rm -rf $(NAME)
+
+re: fclean all
+
 def = ''
 
-test: $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(addprefix $(SRC_DIR)/parse/, $(SRC_PARSE)) $(addprefix $(SRC_DIR)/, $(SRC_DIRSTACK)) $(TESTS)
+test: $(filter-out srcs/main.c, $(wildcard srcs/*.c)) $(wildcard srcs/**/*.c) $(TESTS)
 	$(MAKE) -C $(LIBFT)
 	$(MAKE) -C $(FT_PRINTF)
 	g++\
@@ -60,7 +93,7 @@ test: $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(addprefix $(SRC_DIR)/pa
 		-lgtest\
 		$(LIBS)\
 		$(INCLUDES)\
-		$(TESTS) $(addprefix $(SRC_DIR)/builtin/, $(SRC_BUILTIN)) $(addprefix $(SRC_DIR)/parse/, $(SRC_PARSE)) $(addprefix $(SRC_DIR)/, $(SRC_DIRSTACK))\
+		$(TESTS) $(filter-out srcs/main.c, $(wildcard srcs/*.c)) $(wildcard srcs/**/*.c)\
 		-o $@
 
-.PHONY: test
+.PHONY: test all re clean fclean

@@ -41,15 +41,15 @@ protected:
 		getcwd(buf, 1024);
 		ASSERT_STREQ(buf, pwd);
 		ASSERT_STREQ(ctx.pwd, pwd);
-		ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), pwd);
-		ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), oldpwd);
+		ASSERT_STREQ(get_env("PWD", ctx.envs), pwd);
+		ASSERT_STREQ(get_env("OLDPWD", ctx.envs), oldpwd);
 		ASSERT_STREQ((char *)ctx.dir_stack.head->data, pwd);
 	}
 
 	void			test_error(char *args[], char *msg)
 	{
-		char	*temp_oldpwd = get_env((char *)"OLDPWD", ctx.envs);
-		char	*temp_pwd = get_env((char *)"PWD", ctx.envs);
+		char	*temp_oldpwd = get_env("OLDPWD", ctx.envs);
+		char	*temp_pwd = get_env("PWD", ctx.envs);
 		char	*temp_ctxpwd = strdup(ctx.pwd);
 
 		::testing::internal::CaptureStderr();
@@ -57,9 +57,9 @@ protected:
 		string output = ::testing::internal::GetCapturedStderr();
 
 		ASSERT_NE((long)strstr(output.c_str(), msg), NULL);
-		ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), temp_pwd);
+		ASSERT_STREQ(get_env("PWD", ctx.envs), temp_pwd);
 		ASSERT_STREQ(ctx.pwd, temp_ctxpwd);
-		ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), temp_oldpwd);
+		ASSERT_STREQ(get_env("OLDPWD", ctx.envs), temp_oldpwd);
 		free(temp_ctxpwd);
 	}
 };
@@ -92,16 +92,16 @@ TEST_F(CDTest, no_argument_with_HOME)
 
 	free(ctx.envs);
 	ctx.envs = (char **)malloc(sizeof(char *) * 2);
-	ctx.envs[0] = ft_strjoin("HOME=", get_env((char *)"HOME", environ));
+	ctx.envs[0] = ft_strjoin("HOME=", get_env("HOME", environ));
 	ctx.envs[1] = NULL;
-	home = get_env((char *)"HOME", ctx.envs);
+	home = get_env("HOME", ctx.envs);
 
 	ASSERT_EQ(cmd_cd((char **)args, &ctx), 0);
 	getcwd(buf, 1024);
 	ASSERT_STREQ(buf, home);
 	ASSERT_STREQ(ctx.pwd, home);
-	ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), home);
-	ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), oldpwd);
+	ASSERT_STREQ(get_env("PWD", ctx.envs), home);
+	ASSERT_STREQ(get_env("OLDPWD", ctx.envs), oldpwd);
 }
 
 TEST_F(CDTest, no_argument_without_HOME)
@@ -114,8 +114,8 @@ TEST_F(CDTest, no_argument_without_HOME)
 	getcwd(buf, 1024);
 	ASSERT_STREQ(buf, pwd);
 	ASSERT_STREQ(ctx.pwd, pwd);
-	ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), pwd);
-	ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), pwd);
+	ASSERT_STREQ(get_env("PWD", ctx.envs), pwd);
+	ASSERT_STREQ(get_env("OLDPWD", ctx.envs), pwd);
 }
 
 TEST_F(CDTest, dash_with_OLDPWD)
@@ -126,14 +126,14 @@ TEST_F(CDTest, dash_with_OLDPWD)
 	ctx.envs = (char **)malloc(sizeof(char *) * 2);
 	ctx.envs[0] = strdup("OLDPWD=/usr/bin");
 	ctx.envs[1] = NULL;
-	strcpy(pwd, get_env((char *)"OLDPWD", ctx.envs));
+	strcpy(pwd, get_env("OLDPWD", ctx.envs));
 
 	ASSERT_EQ(cmd_cd((char **)args, &ctx), 0);
 	getcwd(buf, 1024);
 	ASSERT_STREQ(buf, pwd);
 	ASSERT_STREQ(ctx.pwd, pwd);
-	ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), pwd);
-	ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), oldpwd);
+	ASSERT_STREQ(get_env("PWD", ctx.envs), pwd);
+	ASSERT_STREQ(get_env("OLDPWD", ctx.envs), oldpwd);
 }
 
 TEST_F(CDTest, dash_without_OLDPWD)
@@ -198,8 +198,8 @@ TEST_F(CDTest, symlink_dir)
 	chdir(oldpwd);
 
 	ASSERT_STREQ(ctx.pwd, pwd);
-	ASSERT_STREQ(get_env((char *)"PWD", ctx.envs), pwd);
-	ASSERT_STREQ(get_env((char *)"OLDPWD", ctx.envs), oldpwd);
+	ASSERT_STREQ(get_env("PWD", ctx.envs), pwd);
+	ASSERT_STREQ(get_env("OLDPWD", ctx.envs), oldpwd);
 	ASSERT_NE(rmdir("./a"), -1);
 	ASSERT_NE(unlink("./b/c"), -1);
 	ASSERT_NE(rmdir("./b"), -1);

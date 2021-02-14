@@ -1,18 +1,5 @@
 #include "minishell.h"
 
-static void	clear_arr(char **arr)
-{
-	int		i;
-
-	i = 0;
-	while (arr[i])
-	{
-		ft_memdel((void **)&arr[i]);
-		i++;
-	}
-	ft_memdel((void **)&arr);
-}
-
 char		**list2array(t_list *list)
 {
 	char		**arr;

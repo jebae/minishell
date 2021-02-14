@@ -1,15 +1,5 @@
 #include "minishell.h"
 
-static int	get_args_len(char **args)
-{
-	int		i;
-
-	i = 0;
-	while (args[i])
-		i++;
-	return (i);
-}
-
 static char	*get_path(char *arg, t_context *ctx)
 {
 	char	*path;
@@ -17,14 +7,14 @@ static char	*get_path(char *arg, t_context *ctx)
 
 	if (arg == NULL)
 	{
-		if ((temp = get_env((char *)"HOME", ctx->envs)) == NULL)
+		if ((temp = get_env("HOME", ctx->envs)) == NULL)
 			path = ft_strdup(ctx->pwd);
 		else
 			path = ft_strdup(temp);
 	}
 	else if (ft_strcmp(arg, "-") == 0)
 	{
-		if ((temp = get_env((char *)"OLDPWD", ctx->envs)) == NULL)
+		if ((temp = get_env("OLDPWD", ctx->envs)) == NULL)
 			path = NULL;
 		else
 			path = ft_strdup(temp);
@@ -69,7 +59,7 @@ int			cmd_cd(char **args, t_context *ctx)
 {
 	char	*path;
 
-	if (get_args_len(args) > 1)
+	if (get_arr_length(args) > 1)
 	{
 		ft_fprintf(2, "cd: too many arguments\n");
 		return (-1);
