@@ -51,12 +51,13 @@ int			exec(char **args, t_context *ctx)
 	{
 		waitpid(pid, &status, 0);
 		ft_memdel((void **)&exe);
+		if (WIFEXITED(status))
+			return(WEXITSTATUS(status));
 		return (0);
 	}
 	else
 	{
 		ft_memdel((void **)&exe);
-		kill(pid, SIGKILL);
 		return (-1);
 	}
 }
