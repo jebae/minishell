@@ -74,5 +74,5 @@ $>
 	- `~[-+][0-9]+`: show directory history entry from history stack.
 		e.g. `~-1` means last entry in history stack.
 - `"`: protect words enclosed between `"`. Variable substitution with `$` is possible.
-- `'`: protect words enclosed between `"`. Variable substitution with `$` is impossible.
+- `'`: protect words enclosed between `'`. Variable substitution with `$` is impossible.
 - `\`: escape special expression character.
